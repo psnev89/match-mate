@@ -100,10 +100,12 @@ const valid = computed(
         side.players.length === 5 &&
         validScore(scores[side.slot]) &&
         goals[side.slot].length === scores[side.slot] &&
-        goals[side.slot].every((goal) =>
-          availableScorers(side.slot, goal).some(
-            (player) => player.id === goal.player_id,
-          ),
+        goals[side.slot].every(
+          (goal) =>
+            !goal.player_id ||
+            availableScorers(side.slot, goal).some(
+              (player) => player.id === goal.player_id,
+            ),
         ),
     ),
 );
@@ -247,7 +249,8 @@ onMounted(load);
   <div class="mx-auto max-w-2xl">
     <h1 class="heading">{{ editing ? "Edit match" : "Log a match" }}</h1>
     <p class="mb-6 mt-2 text-slate-600">
-      Who played, the final score, and every goal.
+      Pick the lineups and result. Goalscorers are optional and can be added
+      later.
     </p>
     <p v-if="loading" role="status">Loading the squad…</p>
     <div v-else-if="loadError" class="error" role="alert">
@@ -392,15 +395,8 @@ onMounted(load);
                 :id="`goal-${side.slot}-${index}`"
                 v-model="goal.player_id"
                 class="field"
-                required
               >
-                <option value="" disabled>
-                  {{
-                    goal.is_own_goal
-                      ? "Who scored the own goal?"
-                      : "Select scorer"
-                  }}
-                </option>
+                <option value="">Scorer not recorded (optional)</option>
                 <option
                   v-for="player in availableScorers(side.slot, goal)"
                   :key="player.id"
@@ -417,8 +413,9 @@ onMounted(load);
           </section>
         </div>
         <p class="text-sm text-slate-500">
-          Select a player again for each goal they scored. Reducing the score
-          removes the last selections. A 0–0 draw still needs both lineups.
+          Leave scorers blank to save just the result, or select a player again
+          for each goal they scored. Reducing the score removes the last
+          selections. A 0–0 draw still needs both lineups.
         </p>
         <button
           class="btn w-full"

@@ -1,4 +1,6 @@
 <script setup>
+import { useAuthStore } from "../stores/auth";
+const auth = useAuthStore();
 import { computed, onMounted, ref } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import { getMatch } from "../services/football";
@@ -63,7 +65,7 @@ onMounted(load);
           {{ teamName(match.team_b_id) }}
         </h1>
       </div>
-      <RouterLink :to="`/matches/${match.id}/edit`" class="btn"
+      <RouterLink v-if="auth.user" :to="`/matches/${match.id}/edit`" class="btn"
         >Edit match</RouterLink
       >
     </div>
@@ -115,7 +117,7 @@ onMounted(load);
             )"
             :key="goal.id"
           >
-            ⚽ {{ goal.player.name }}
+            ⚽ {{ goal.player?.name ?? "Scorer not recorded" }}
             <span v-if="goal.is_own_goal" class="text-sm text-amber-800"
               >(own goal)</span
             >

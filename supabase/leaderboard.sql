@@ -14,7 +14,7 @@ as $$
   from totals t order by t.goals desc, t.name, t.player_id;
 $$;
 revoke all on function public.season_leaderboard(integer) from public, anon, authenticated;
-grant execute on function public.season_leaderboard(integer) to authenticated;
+grant execute on function public.season_leaderboard(integer) to anon, authenticated;
 
 create or replace function public.season_win_rates(p_year integer)
 returns table (player_id uuid, name text, games bigint, wins bigint, win_percentage numeric, rank bigint)
@@ -40,4 +40,4 @@ as $$
   order by (t.wins::numeric / t.games) desc, t.name, t.player_id;
 $$;
 revoke all on function public.season_win_rates(integer) from public, anon, authenticated;
-grant execute on function public.season_win_rates(integer) to authenticated;
+grant execute on function public.season_win_rates(integer) to anon, authenticated;

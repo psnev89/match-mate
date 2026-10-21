@@ -41,7 +41,7 @@ export async function getMatches(year) {
   for (let offset = 0; ; offset += pageSize) {
     const { data, error } = await supabase
       .from("matches")
-      .select("*")
+      .select("*, goals(player_id)")
       .eq("season_year", year)
       .order("date", { ascending: false })
       .range(offset, offset + pageSize - 1);
@@ -84,8 +84,14 @@ export async function logMatch({
     p_date: date,
     p_lineup_a: lineupA,
     p_lineup_b: lineupB,
-    p_goals_a: goalsA,
-    p_goals_b: goalsB,
+    p_goals_a: goalsA.map((goal) => ({
+      ...goal,
+      player_id: goal.player_id || null,
+    })),
+    p_goals_b: goalsB.map((goal) => ({
+      ...goal,
+      player_id: goal.player_id || null,
+    })),
   });
   if (error) throw error;
   return data;

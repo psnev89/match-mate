@@ -26,6 +26,8 @@ Do not recreate existing tables. Apply only the migrations you have not run, in 
 
 3. `supabase/migrations/004_match_editing_and_profiles.sql` — adds atomic match edits, edit-conflict protection and player-profile statistics.
 
+4. `supabase/migrations/005_public_view_and_optional_scorers.sql` — enables public read-only access and saving goals without a scorer.
+
 Each migration runs once. Migration 003 preserves players, match results, match-specific teams, goals and player statistics. It drops only `players.team_id`, the former usual-team association. Use the updated frontend after applying the migrations.
 
 Old goals default to normal goals because their type was never recorded. Old matches keep counting toward team results and Golden Boot, but are excluded from win rates because their full attendance is unknown. The Player stats screen explains how many games are missing lineups. Do not infer attendance from goalscorers: that omits everyone who did not score.
@@ -36,7 +38,7 @@ For an older game whose full lineup you know, open the match from the dashboard 
 
 ### Member accounts
 
-This app assumes one trusted, private group. Every authenticated account can read results, add/edit players and record matches.
+Football data (player names, lineups, results and stats) is now public to anyone with the website address. Visitors have read-only access. Every invited, authenticated account is an admin and can add/edit players and matches. There is no separate admin-role system in this simple app.
 
 1. In Supabase Authentication settings, disable **Allow new users to sign up** and leave anonymous sign-in disabled.
 2. In Authentication → Users, use **Add user → Create new user** to create each friend's email/password account. Confirm the email when creating the account so they can sign in immediately.
@@ -96,7 +98,7 @@ The Players form calls `addPlayer(name)` in `src/services/football.js`. The serv
 
 `logMatch({ date, lineupA, lineupB, goalsA, goalsB })` calls PostgreSQL's `save_match` function. The lineups are arrays of player IDs. Each goal is `{ player_id, is_own_goal }`. `goalsA` always contains goals credited to Team A, including own goals scored by Team B players.
 
-The database checks that players are active, nobody is selected twice, and each goal matches the actual lineup and goal type. It derives scores from goal array lengths and saves the result, appearances and goals in one transaction. A repeated goalscorer is allowed; a repeated appearance is not. Both sides need exactly five players, including in a 0–0 game. Players not selected are absent. You need at least ten active players in your roster.
+The database checks that players are active, nobody is selected twice, and each goal matches the actual lineup and goal type. It derives scores from goal array lengths and saves the result, appearances and goals in one transaction. A repeated goalscorer is allowed; a repeated appearance is not. Both sides need exactly five players, including in a 0–0 game. Players not selected are absent. You need at least ten active players in your roster. Goalscorer selections may be left blank.
 
 ### Example: an own goal
 
@@ -111,7 +113,7 @@ Each player dropdown offers active players who have not been picked elsewhere, p
 - `goals.team_id`: team credited with the goal. With `is_own_goal = true`, the scorer played for the opposite team.
 - `matches.lineup_recorded`: false for legacy games with unknown attendance; true for all games created by the new form.
 - Match date determines the calendar season.
-- One match per date prevents duplicate entries. After a dropped connection, check the dashboard before retrying.
+- One match per date prevents duplicate Sunday entries. After a dropped connection, check the dashboard before retrying.
 - Scores are integers from 0 to 50.
 - Players cannot switch sides during a single match in this version: choose one side per player per game.
 - Both win rate and Golden Boot keep historical records when a player plays for a different side or is deactivated.
@@ -161,3 +163,13 @@ Player names on Players, Player stats and match lineups link to a profile. Its s
 The match detail page offers **Copy text** and **Open WhatsApp**. The text includes date, score, both lineups and scorers, with repeated goals grouped and own goals labelled. The app never sends a message automatically. If clipboard access is unavailable, select/copy the displayed text manually. The WhatsApp action requires internet access and the user's own WhatsApp account.
 
 Additional checks: edit a result and confirm standings and profiles update; edit an already-open match from a second tab and check the first tab cannot overwrite it; copy a lineup containing an inactive player; preview the share text for an own goal and a hat-trick.
+
+## Public viewing and optional scorers
+
+Anyone can browse the dashboard, Matches history, player list and profiles without signing in. A Sign in button appears in the header. Log/edit controls appear only for signed-in admins; direct edit/new URLs redirect visitors to sign-in. Supabase grants the anonymous role SELECT only and execution of the read-only stats functions, never access to saving functions or table writes. Keep public sign-ups and anonymous sign-in disabled: all invited accounts are trusted admins. Authentication email addresses are not exposed by these football queries.
+
+When logging a match, select the ten players and enter the score. Every scorer dropdown can stay at **Scorer not recorded (optional)**. The database stores one goal row per point of the score, with a nullable player ID. Team results, goal difference, appearances and win rates still count immediately; only named, normal goals count toward Golden Boot and a player's goal total. You can also leave some goals assigned and others unassigned.
+
+The **Matches** tab lists all matches in the selected season, newest first, and flags missing scorers. Admins can edit each match's date, lineups, score and scorers. Reducing the score removes trailing goal entries. Adding scorers later replaces the saved goal rows atomically and updates player statistics. Unknown scorers display explicitly in match details and WhatsApp text rather than being credited to another player.
+
+For validation, open the site in a signed-out/private window: all read views should work, write controls should be hidden, and direct /matches/new or edit URLs should require sign-in. As an admin, save a 3–1 match without scorers, then fill in two goals from Match history and verify team totals remain unchanged while Golden Boot updates.

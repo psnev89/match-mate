@@ -61,7 +61,8 @@ watch(() => football.season, load, { immediate: true });
     <section class="card">
       <h2 class="text-xl font-bold">Golden Boot</h2>
       <p class="mb-3 mt-2 text-sm text-slate-500">
-        Goals scored this season. Own goals excluded.
+        Assigned goals this season. Own goals and goals without a scorer are
+        excluded.
       </p>
       <p v-if="!scorers.length" class="text-slate-600">
         Add your players to start the Golden Boot race.

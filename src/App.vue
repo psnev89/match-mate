@@ -13,7 +13,7 @@ const signingOut = ref(false);
 const { needRefresh, updateServiceWorker } = useRegisterSW();
 const links = [
   { to: "/", label: "Overview" },
-  { to: "/matches/new", label: "Log match" },
+  { to: "/matches", label: "Matches" },
   { to: "/leaderboard", label: "Player stats" },
   { to: "/roster", label: "Players" },
 ];
@@ -22,7 +22,7 @@ watch(
   (user) => {
     if (!user) {
       football.clear();
-      router.replace("/login");
+      router.replace("/");
     }
   },
 );
@@ -56,6 +56,13 @@ async function signOut() {
       >
         Sign out
       </button>
+      <RouterLink
+        v-else
+        to="/login"
+        class="btn-secondary shrink-0"
+        aria-label="Sign in as admin"
+        >Sign in</RouterLink
+      >
     </div>
   </header>
   <div v-if="error" role="alert" class="error mx-auto max-w-5xl">
@@ -71,10 +78,12 @@ async function signOut() {
     ><button class="btn-secondary" @click="needRefresh = false">Later</button>
   </div>
   <main class="mx-auto max-w-5xl px-4 py-7 pb-28">
-    <RouterView :key="$route.fullPath" />
+    <p v-if="!auth.user" class="mb-4 text-xs text-slate-500">
+      View mode
+    </p>
+    <RouterView :key="`${$route.fullPath}:${auth.user?.id ?? 'guest'}`" />
   </main>
   <nav
-    v-if="auth.user"
     aria-label="Main navigation"
     class="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)]"
   >

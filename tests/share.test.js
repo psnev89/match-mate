@@ -46,3 +46,13 @@ test("legacy games explicitly say attendance was not recorded", () => {
   const text = matchSummary({ ...game, match_players: [] }, teams);
   assert.equal(text.match(/Lineup not recorded/g).length, 2);
 });
+
+test('score-only matches show unrecorded scorers without crashing', () => {
+  const text = matchSummary({ ...game, goals: [
+    { team_id: 'a', player_id: null, player: null, is_own_goal: false },
+    { team_id: 'a', player_id: null, player: null, is_own_goal: false },
+    { team_id: 'a', player_id: 'alex', player: { name: 'Alex' }, is_own_goal: false },
+  ] }, teams);
+  assert.ok(text.includes('Scorer not recorded ×2, Alex'));
+  assert.ok(text.includes('*Team A 3–0 Team B*'));
+});

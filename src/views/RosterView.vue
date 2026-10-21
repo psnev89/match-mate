@@ -1,4 +1,6 @@
 <script setup>
+import { useAuthStore } from "../stores/auth";
+const auth = useAuthStore();
 import { RouterLink } from "vue-router";
 import { onMounted, reactive, ref } from "vue";
 import { useFootballStore } from "../stores/football";
@@ -37,7 +39,7 @@ async function load() {
   }
 }
 async function save() {
-  if (busy.value || !form.name.trim()) return;
+  if (!auth.user || busy.value || !form.name.trim()) return;
   busy.value = true;
   error.value = "";
   success.value = "";
@@ -63,9 +65,7 @@ onMounted(load);
 </script>
 <template>
   <h1 class="heading">The squad</h1>
-  <p class="mb-6 mt-2 text-slate-600">
-    Add your friends by name. Pick their teams when logging each match.
-  </p>
+  <p class="mb-6 mt-2 text-slate-600">Our players and their season profiles.</p>
   <p v-if="loading" role="status">Loading players…</p>
   <template v-else>
     <div v-if="error" role="alert" class="error mb-4">
@@ -73,7 +73,7 @@ onMounted(load);
       <button :disabled="busy" class="underline" @click="load">Refresh</button>
     </div>
     <p v-if="success" role="status" class="success mb-4">{{ success }}</p>
-    <form class="card mb-6 space-y-4" @submit.prevent="save">
+    <form v-if="auth.user" class="card mb-6 space-y-4" @submit.prevent="save">
       <h2 class="text-xl font-bold">
         {{ editingId ? "Edit player" : "Add a player" }}
       </h2>
@@ -139,6 +139,7 @@ onMounted(load);
           <button
             class="btn-secondary"
             :disabled="busy"
+            v-if="auth.user"
             :aria-label="`Edit ${player.name}`"
             @click="edit(player)"
           >

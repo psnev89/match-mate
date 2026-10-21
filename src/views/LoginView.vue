@@ -43,7 +43,7 @@ async function submit() {
       </p>
     </div>
     <form v-else class="card space-y-5" @submit.prevent="submit">
-      <h2 class="text-xl font-bold">Sign in to your group</h2>
+      <h2 class="text-xl font-bold">Admin sign in</h2>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
       <div>
         <label for="email" class="label">Email</label
@@ -71,7 +71,8 @@ async function submit() {
         {{ busy ? "Signing in…" : "Sign in" }}
       </button>
       <p class="text-sm text-slate-500">
-        Ask your group organizer for an account or a password reset.
+        Visitors can browse without signing in. Admin accounts are provided by
+        the group organizer.
       </p>
     </form>
   </section>

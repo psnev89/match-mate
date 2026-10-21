@@ -21,7 +21,7 @@ export function matchSummary(match, teams) {
     for (const goal of match.goals.filter((goal) => goal.team_id === teamId)) {
       const key = `${goal.player_id}:${goal.is_own_goal}`;
       const row = totals.get(key) ?? {
-        name: goal.player.name,
+        name: goal.player?.name ?? "Scorer not recorded",
         own: goal.is_own_goal,
         count: 0,
       };

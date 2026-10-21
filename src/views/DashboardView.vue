@@ -1,4 +1,6 @@
 <script setup>
+import { useAuthStore } from "../stores/auth";
+const auth = useAuthStore();
 import { computed, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 import { useFootballStore } from "../stores/football";
@@ -92,12 +94,20 @@ watch(() => football.season, load, { immediate: true });
           <p class="mt-2 text-sm text-emerald-100">draws</p>
         </div>
       </div>
-      <RouterLink to="/matches/new" class="btn !bg-white !text-emerald-950"
+      <RouterLink
+        v-if="auth.user"
+        to="/matches/new"
+        class="btn !bg-white !text-emerald-950"
         >+ Log a new match</RouterLink
       >
     </section>
     <section class="mt-7">
-      <h2 class="mb-4 text-xl font-bold">Recent matches</h2>
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-xl font-bold">Recent matches</h2>
+        <RouterLink to="/matches" class="text-emerald-800 underline"
+          >View all</RouterLink
+        >
+      </div>
       <div v-if="!matches.length" class="card text-slate-600">
         The season starts here. Log your first match after the final whistle.
       </div>
