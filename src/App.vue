@@ -14,7 +14,6 @@ const { needRefresh, updateServiceWorker } = useRegisterSW();
 const links = [
   { to: "/", label: "Overview" },
   { to: "/matches", label: "Matches" },
-  { to: "/leaderboard", label: "Player stats" },
   { to: "/roster", label: "Players" },
 ];
 watch(
@@ -87,7 +86,7 @@ async function signOut() {
     aria-label="Main navigation"
     class="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)]"
   >
-    <div class="mx-auto grid max-w-3xl grid-cols-4">
+    <div class="mx-auto grid max-w-3xl grid-cols-3">
       <RouterLink
         v-for="link in links"
         :key="link.to"

@@ -4,7 +4,6 @@ import { isConfigured } from "./lib/supabase";
 import LoginView from "./views/LoginView.vue";
 import DashboardView from "./views/DashboardView.vue";
 import LogMatchView from "./views/LogMatchView.vue";
-import LeaderboardView from "./views/LeaderboardView.vue";
 import RosterView from "./views/RosterView.vue";
 
 import MatchHistoryView from "./views/MatchHistoryView.vue";
@@ -29,7 +28,7 @@ const router = createRouter({
     },
     { path: "/matches/:id", component: MatchDetailView },
     { path: "/players/:id", component: PlayerProfileView },
-    { path: "/leaderboard", component: LeaderboardView },
+    { path: "/leaderboard", redirect: "/roster" },
     { path: "/roster", component: RosterView },
     { path: "/:pathMatch(.*)*", redirect: "/" },
   ],

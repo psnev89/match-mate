@@ -28,6 +28,8 @@ Do not recreate existing tables. Apply only the migrations you have not run, in 
 
 4. `supabase/migrations/005_public_view_and_optional_scorers.sql` — enables public read-only access and saving goals without a scorer.
 
+5. `supabase/migrations/006_players_season_table.sql` — adds the combined Players table query.
+
 Each migration runs once. Migration 003 preserves players, match results, match-specific teams, goals and player statistics. It drops only `players.team_id`, the former usual-team association. Use the updated frontend after applying the migrations.
 
 Old goals default to normal goals because their type was never recorded. Old matches keep counting toward team results and Golden Boot, but are excluded from win rates because their full attendance is unknown. The Player stats screen explains how many games are missing lineups. Do not infer attendance from goalscorers: that omits everyone who did not score.
@@ -173,3 +175,13 @@ When logging a match, select the ten players and enter the score. Every scorer d
 The **Matches** tab lists all matches in the selected season, newest first, and flags missing scorers. Admins can edit each match's date, lineups, score and scorers. Reducing the score removes trailing goal entries. Adding scorers later replaces the saved goal rows atomically and updates player statistics. Unknown scorers display explicitly in match details and WhatsApp text rather than being credited to another player.
 
 For validation, open the site in a signed-out/private window: all read views should work, write controls should be hidden, and direct /matches/new or edit URLs should require sign-in. As an admin, save a 3–1 match without scorers, then fill in two goals from Match history and verify team totals remain unchanged while Golden Boot updates.
+
+## Combined Players page
+
+Players now combines roster management and seasonal statistics. The old `/leaderboard` URL redirects to `/roster`, and the bottom navigation has Overview, Matches and Players. Individual profiles remain available by clicking a player name.
+
+The top cards show the highest assigned normal goal total (only if greater than zero) and the highest win rate among players with **at least five** recorded season games. Shared leaders are all named; win-rate ties use the exact wins/games fraction rather than rounded display percentages. Inactive players retain their season records and remain eligible.
+
+The table shows games, wins, losses, draws, win percentage and goals. Below five games, the rate appears in amber; hover its info control for an explanation, or focus/tap it to display the explanation below the table. A player with no games shows a dash rather than an invented percentage. On narrow screens the table scrolls horizontally. Admins can still add/edit player names and active status.
+
+`season_players` reuses the profile calculation on the database side and returns all players in one request. Migration 006 adds only this read-only function; it does not change any saved records.

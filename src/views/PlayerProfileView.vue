@@ -52,8 +52,8 @@ async function load() {
 watch(() => football.season, load, { immediate: true });
 </script>
 <template>
-  <RouterLink to="/leaderboard" class="text-emerald-800 underline"
-    >← Player stats</RouterLink
+  <RouterLink to="/roster" class="text-emerald-800 underline"
+    >← Players</RouterLink
   >
   <div class="my-6 flex flex-wrap items-center justify-between gap-4">
     <h1 class="heading">{{ profile?.player.name ?? "Player profile" }}</h1>

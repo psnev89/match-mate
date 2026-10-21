@@ -130,3 +130,11 @@ export async function getPlayerProfile(id, year) {
   if (stats.error) throw stats.error;
   return { player: player.data, stats: stats.data[0] };
 }
+
+export async function getSeasonPlayers(year) {
+  const { data, error } = await supabase.rpc("season_players", {
+    p_year: year,
+  });
+  if (error) throw error;
+  return data;
+}
