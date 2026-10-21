@@ -89,9 +89,8 @@ watch(() => football.season, load, { immediate: true });
           </p>
         </div>
         <div>
-          <p class="text-sm text-emerald-100">All square</p>
+          <p class="text-sm text-emerald-100">Draws</p>
           <p class="mt-2 text-5xl font-bold">{{ draws }}</p>
-          <p class="mt-2 text-sm text-emerald-100">draws</p>
         </div>
       </div>
       <RouterLink
